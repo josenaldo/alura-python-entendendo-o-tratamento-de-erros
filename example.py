@@ -1,4 +1,5 @@
 def dividir(dividendo, divisor):
+
     if not (isinstance(dividendo, int) and isinstance(divisor, int)):
         raise ValueError("dividir() deve receber apenas argumentos inteiros")
     try:
