@@ -11,6 +11,8 @@ class ContaCorrente:
         self.__saldo = 100
         self.__agencia =0
         self.__numero = 0
+        self.__saques_nao_permitidos = 0
+
 
         self.__set_cliente(cliente)
         self.__set_agencia(agencia)
@@ -23,25 +25,25 @@ class ContaCorrente:
     def agencia(self):
         return self.__agencia
 
-    def __set_agencia(self, value):
-        if not isinstance(value, int):
-            raise ValueError("O atributo agencia deve ser um inteiro", value)
-        if value <= 0:
+    def __set_agencia(self, valor):
+        if not isinstance(valor, int):
+            raise ValueError("O atributo agencia deve ser um inteiro", valor)
+        if valor <= 0:
             raise ValueError("O atributo agencia deve ser maior que zero")
 
-        self.__agencia = value
+        self.__agencia = valor
 
 
     @property
     def numero(self):
         return self.__numero
 
-    def __set_numero(self, value):
-        if not isinstance(value, int):
+    def __set_numero(self, valor):
+        if not isinstance(valor, int):
             raise ValueError("O atributo número deve ser um inteiro")
-        if value <= 0:
+        if valor <= 0:
             raise ValueError("O atributo número  deve ser maior que zero")
-        self.__numero = value
+        self.__numero = valor
 
 
     @property
@@ -49,12 +51,12 @@ class ContaCorrente:
         return self.__saldo
 
     @saldo.setter
-    def saldo(self, value):
-        if not isinstance(value, int):
+    def saldo(self, valor):
+        if not isinstance(valor, int):
             raise ValueError("O atributo saldo deve ser um inteiro")
-        if value < 0:
-            raise SaldoInsuficienteError("O atributo saldo deve ser maior que zero")
-        self.__saldo = value
+        if valor < 0:
+            raise SaldoInsuficienteError("",saldo=self.saldo, valor=valor)
+        self.__saldo = valor
 
 
     @property
@@ -64,8 +66,11 @@ class ContaCorrente:
     def __set_cliente(self, cliente):
         if(cliente is None):
             raise ValueError("O cliente deve ser informado")
-
         self.__cliente = cliente
+
+    @property
+    def saques_nao_permitidos(self):
+        return self.__saques_nao_permitidos
 
     def transferir(self, valor, favorecido):
         favorecido.depositar(valor)
@@ -75,7 +80,8 @@ class ContaCorrente:
         if valor < 0:
             raise ValueError("O valor a ser sacado não pode ser menor que zero.")
         if self.saldo < valor:
-            raise SaldoInsuficienteError("Saldo insuficiente.")
+            self.__saques_nao_permitidos += 1
+            raise SaldoInsuficienteError("", saldo=self.saldo, valor=valor)
         self.saldo -= valor
 
     def depositar(self, valor):
