@@ -23,7 +23,7 @@ class ContaCorrente:
             raise ValueError("O atributo agencia deve ser um inteiro", value)
         if value <= 0:
             raise ValueError("O atributo agencia deve ser maior que zero")
-            
+
         self.__agencia = value
 
 
@@ -42,18 +42,21 @@ class ContaCorrente:
     @property
     def saldo(self):
         return self.__saldo
+
     @saldo.setter
     def saldo(self, value):
         if not isinstance(value, int):
             raise ValueError("O atributo saldo deve ser um inteiro")
         if value <= 0:
+            print("O atributo saldo deve ser maior que zero")
             raise ValueError("O atributo saldo deve ser maior que zero")
         self.__saldo = value
 
 
     def transferir(self, valor, favorecido):
         favorecido.depositar(valor)
-    
+        self.saldo -= valor
+
     def sacar(self, valor):
         self.saldo -= valor
 
