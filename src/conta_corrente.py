@@ -1,16 +1,21 @@
+from src.exceptions import SaldoInsuficienteError
+from src.cliente import Cliente
+
+
 class ContaCorrente:
     total_contas_criadas = 0
     taxa_operacao = None
 
     def __init__(self, cliente, agencia, numero):
+        self.__cliente = None
         self.__saldo = 100
         self.__agencia =0
         self.__numero = 0
 
-
-        self.cliente = cliente
+        self.__set_cliente(cliente)
         self.__set_agencia(agencia)
         self.__set_numero(numero)
+
         ContaCorrente.total_contas_criadas += 1
         ContaCorrente.taxa_operacao = 30/ContaCorrente.total_contas_criadas
 
@@ -47,18 +52,33 @@ class ContaCorrente:
     def saldo(self, value):
         if not isinstance(value, int):
             raise ValueError("O atributo saldo deve ser um inteiro")
-        if value <= 0:
-            print("O atributo saldo deve ser maior que zero")
-            raise ValueError("O atributo saldo deve ser maior que zero")
+        if value < 0:
+            raise SaldoInsuficienteError("O atributo saldo deve ser maior que zero")
         self.__saldo = value
 
 
+    @property
+    def cliente(self):
+        return self.__cliente
+
+    def __set_cliente(self, cliente):
+        if(cliente is None):
+            raise ValueError("O cliente deve ser informado")
+
+        self.__cliente = cliente
+
     def transferir(self, valor, favorecido):
         favorecido.depositar(valor)
-        self.saldo -= valor
+        self.sacar(valor)
 
     def sacar(self, valor):
+        if valor < 0:
+            raise ValueError("O valor a ser sacado não pode ser menor que zero.")
+        if self.saldo < valor:
+            raise SaldoInsuficienteError("Saldo insuficiente.")
         self.saldo -= valor
 
     def depositar(self, valor):
+        if valor < 0:
+            raise ValueError("O valor a ser depositado não pode ser menor que zero.")
         self.saldo += valor

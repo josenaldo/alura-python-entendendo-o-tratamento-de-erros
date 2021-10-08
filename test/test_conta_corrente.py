@@ -3,6 +3,8 @@ from pytest import fixture, raises
 
 from src.cliente import Cliente
 from src.conta_corrente import ContaCorrente
+from src.exceptions import SaldoInsuficienteError
+
 
 
 class Test_Cliente:
@@ -65,10 +67,14 @@ class Test_Cliente:
             conta = ContaCorrente(joao, agencia, numero_da_conta_joao)
             conta.saldo = "45"
 
-    def test_saldo_deve_ser_maior_que_zero(self, joao, agencia, numero_da_conta_joao):
-        with raises(ValueError) as excecao:
+    def test_saldo_nao_pode_ser_menor_que_zero(self, joao, agencia, numero_da_conta_joao):
+        with raises(SaldoInsuficienteError) as excecao:
             conta = ContaCorrente(joao, agencia, numero_da_conta_joao)
             conta.saldo = -80
+
+        conta = ContaCorrente(joao, agencia, numero_da_conta_joao)
+        conta.saldo = 0
+        assert conta.saldo == 0
 
     def test_valor_transferido_deve_ser_debitado_da_conta_de_origem(self, joao, agencia, numero_da_conta_joao, pedro, numero_da_conta_pedro):
         contaJoao = ContaCorrente(joao, agencia, numero_da_conta_joao)
@@ -84,18 +90,45 @@ class Test_Cliente:
         contaJoao.transferir(60, contaPedro)
         assert contaPedro.saldo == 160
 
+    def test_nao_deve_transferir_se_o_valor_transferido_for_maior_que_o_saldo_da_conta(self, joao, agencia, numero_da_conta_joao, pedro, numero_da_conta_pedro):
+        contaJoao = ContaCorrente(joao, agencia, numero_da_conta_joao)
+        contaPedro = ContaCorrente(pedro, agencia, numero_da_conta_pedro)
+
+        with raises(SaldoInsuficienteError) as excecao:
+            contaJoao.transferir(300, contaPedro)
+
+    def test_nao_deve_transferir_se_o_valor_transferido_for_negativo(self, joao, agencia, numero_da_conta_joao, pedro, numero_da_conta_pedro):
+        contaJoao = ContaCorrente(joao, agencia, numero_da_conta_joao)
+        contaPedro = ContaCorrente(pedro, agencia, numero_da_conta_pedro)
+
+        with raises(ValueError) as excecao:
+            contaJoao.transferir(-300, contaPedro)
+
     def test_sacar_deve_debitar_o_valor_da_conta(self, joao, agencia, numero_da_conta_joao):
         conta = ContaCorrente(joao, agencia, numero_da_conta_joao)
         conta.sacar(80)
         assert conta.saldo == 20
 
     def test_nao_deve_sacar_se_o_valor_sacado_for_maior_que_o_valor_da_conta(self, joao, agencia, numero_da_conta_joao):
-        with raises(ValueError) as excecao:
+        with raises(SaldoInsuficienteError) as excecao:
             conta = ContaCorrente(joao, agencia, numero_da_conta_joao)
             conta.sacar(180)
+
+    def test_nao_deve_sacar_se_o_valor_sacado_for_negativo(self, joao, agencia, numero_da_conta_joao):
+        with raises(ValueError) as excecao:
+            conta = ContaCorrente(joao, agencia, numero_da_conta_joao)
+            conta.sacar(-180)
 
     def test_depositar_deve_acrescentar_o_valor_ao_saldo_da_conta(self, joao, agencia, numero_da_conta_joao):
         conta = ContaCorrente(joao, agencia, numero_da_conta_joao)
         conta.depositar(80)
         assert conta.saldo == 180
 
+    def test_nao_deve_depositar_se_o_valor_depositado_for_negativo(self, joao, agencia, numero_da_conta_joao):
+        with raises(ValueError) as excecao:
+            conta = ContaCorrente(joao, agencia, numero_da_conta_joao)
+            conta.depositar(-180)
+
+    def test_conta_corrente_precisa_ter_um_cliente(self, agencia, numero_da_conta_joao):
+        with raises(ValueError) as excecao:
+            conta = ContaCorrente(None, agencia, numero_da_conta_joao)

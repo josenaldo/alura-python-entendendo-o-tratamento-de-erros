@@ -11,7 +11,6 @@ def main():
         try:
             nome = input("Nome do cliente: \n")
             agencia = input("Número da agência: \n")
-            breakpoint()
             numero = input("Número da conta corrente: \n")
 
             cliente = Cliente(nome, None, None)
