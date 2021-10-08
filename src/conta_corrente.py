@@ -12,6 +12,7 @@ class ContaCorrente:
         self.__agencia =0
         self.__numero = 0
         self.__saques_nao_permitidos = 0
+        self.__transferencias_nao_permitidas = 0
 
 
         self.__set_cliente(cliente)
@@ -72,9 +73,18 @@ class ContaCorrente:
     def saques_nao_permitidos(self):
         return self.__saques_nao_permitidos
 
+    @property
+    def transferencias_nao_permitidas(self):
+        return self.__transferencias_nao_permitidas
+
+
     def transferir(self, valor, favorecido):
-        favorecido.depositar(valor)
-        self.sacar(valor)
+        try:
+            self.sacar(valor)
+            favorecido.depositar(valor)
+        except SaldoInsuficienteError as e:
+            self.__transferencias_nao_permitidas += 1
+            raise e
 
     def sacar(self, valor):
         if valor < 0:

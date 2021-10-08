@@ -129,6 +129,23 @@ class Test_Cliente:
         with raises(ValueError) as excecao:
             contaJoao.transferir(-300, contaPedro)
 
+    def test_transferencias_nao_permitidas_devem_ser_contadas(self, joao, agencia, numero_da_conta_joao, pedro, numero_da_conta_pedro):
+        conta = ContaCorrente(joao, agencia, numero_da_conta_joao)
+
+        contaJoao = ContaCorrente(joao, agencia, numero_da_conta_joao)
+        contaPedro = ContaCorrente(pedro, agencia, numero_da_conta_pedro)
+
+        with raises(SaldoInsuficienteError) as excecao:
+            contaJoao.transferir(300, contaPedro)
+
+        with raises(SaldoInsuficienteError) as excecao:
+            contaJoao.transferir(300, contaPedro)
+
+        with raises(SaldoInsuficienteError) as excecao:
+            contaJoao.transferir(300, contaPedro)
+
+        assert contaJoao.transferencias_nao_permitidas == 3
+
     def test_sacar_deve_debitar_o_valor_da_conta(self, joao, agencia, numero_da_conta_joao):
         conta = ContaCorrente(joao, agencia, numero_da_conta_joao)
         conta.sacar(80)
