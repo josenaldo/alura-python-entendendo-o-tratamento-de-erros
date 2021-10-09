@@ -1,4 +1,4 @@
-from src.exceptions import SaldoInsuficienteError
+from src.exceptions import SaldoInsuficienteError, OperacaoFinanceiraError
 from src.cliente import Cliente
 
 
@@ -31,9 +31,7 @@ class ContaCorrente:
             raise ValueError("O atributo agencia deve ser um inteiro", valor)
         if valor <= 0:
             raise ValueError("O atributo agencia deve ser maior que zero")
-
         self.__agencia = valor
-
 
     @property
     def numero(self):
@@ -46,7 +44,6 @@ class ContaCorrente:
             raise ValueError("O atributo número  deve ser maior que zero")
         self.__numero = valor
 
-
     @property
     def saldo(self):
         return self.__saldo
@@ -58,7 +55,6 @@ class ContaCorrente:
         if valor < 0:
             raise SaldoInsuficienteError("",saldo=self.saldo, valor=valor)
         self.__saldo = valor
-
 
     @property
     def cliente(self):
@@ -77,14 +73,16 @@ class ContaCorrente:
     def transferencias_nao_permitidas(self):
         return self.__transferencias_nao_permitidas
 
-
     def transferir(self, valor, favorecido):
+        if valor < 0:
+            raise ValueError("O valor a ser depositado não pode ser menor que zero")
         try:
             self.sacar(valor)
             favorecido.depositar(valor)
-        except SaldoInsuficienteError as e:
+        except SaldoInsuficienteError as excecao:
             self.__transferencias_nao_permitidas += 1
-            raise e
+            excecao.args = ()
+            raise OperacaoFinanceiraError("Operação não finalizada") from excecao
 
     def sacar(self, valor):
         if valor < 0:

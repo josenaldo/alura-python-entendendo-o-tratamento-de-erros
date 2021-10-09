@@ -3,7 +3,7 @@ from pytest import fixture, raises
 
 from src.cliente import Cliente
 from src.conta_corrente import ContaCorrente
-from src.exceptions import SaldoInsuficienteError
+from src.exceptions import SaldoInsuficienteError, OperacaoFinanceiraError
 
 
 
@@ -119,7 +119,7 @@ class Test_Cliente:
         contaJoao = ContaCorrente(joao, agencia, numero_da_conta_joao)
         contaPedro = ContaCorrente(pedro, agencia, numero_da_conta_pedro)
 
-        with raises(SaldoInsuficienteError) as excecao:
+        with raises(OperacaoFinanceiraError) as excecao:
             contaJoao.transferir(300, contaPedro)
 
     def test_nao_deve_transferir_se_o_valor_transferido_for_negativo(self, joao, agencia, numero_da_conta_joao, pedro, numero_da_conta_pedro):
@@ -130,18 +130,17 @@ class Test_Cliente:
             contaJoao.transferir(-300, contaPedro)
 
     def test_transferencias_nao_permitidas_devem_ser_contadas(self, joao, agencia, numero_da_conta_joao, pedro, numero_da_conta_pedro):
-        conta = ContaCorrente(joao, agencia, numero_da_conta_joao)
 
         contaJoao = ContaCorrente(joao, agencia, numero_da_conta_joao)
         contaPedro = ContaCorrente(pedro, agencia, numero_da_conta_pedro)
 
-        with raises(SaldoInsuficienteError) as excecao:
+        with raises(OperacaoFinanceiraError) as excecao:
             contaJoao.transferir(300, contaPedro)
 
-        with raises(SaldoInsuficienteError) as excecao:
+        with raises(OperacaoFinanceiraError) as excecao:
             contaJoao.transferir(300, contaPedro)
 
-        with raises(SaldoInsuficienteError) as excecao:
+        with raises(OperacaoFinanceiraError) as excecao:
             contaJoao.transferir(300, contaPedro)
 
         assert contaJoao.transferencias_nao_permitidas == 3
